@@ -29,7 +29,7 @@ const CLIENT_ID = '1401637679694614778';
 const CLIENT_SECRET = 'mEpEQDMhEC3xABcpzxhnlwZ8zlY8HZTt';
 const BOT_TOKEN = 'MTQwMTYzNzY3OTY5NDYxNDc3OA.GBuaSq.YWiF9O6t05qKSOjBPvOG3MaTnlj5mpxKsmAsuI';
 // تأكد من تحديث هذا الرابط ليطابق رابط مشروعك المستضاف
-const REDIRECT_URI = 'https://welcomebotdis.vercel.app/callback'; 
+const REDIRECT_URI = 'https://welcomebot.vercel.app/callback';
 
 // إنشاء عميل Discord جديد
 const client = new Client({
