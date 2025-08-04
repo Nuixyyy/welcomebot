@@ -5,7 +5,7 @@ const fs = require('fs');
 const axios = require('axios');
 const session = require('express-session'); // إضافة مكتبة الجلسات
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000; // استخدام متغير البيئة PORT
 
 // Middleware لاستقبال البيانات بصيغة JSON
 app.use(express.json());
@@ -16,7 +16,7 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     cookie: {
-        secure: false,
+        secure: false, // يجب أن يكون true في الإنتاج مع HTTPS
         maxAge: 30 * 24 * 60 * 60 * 1000 // مدة صلاحية الجلسة لمدة 30 يوماً
     }
 }));
@@ -28,9 +28,8 @@ app.use(session({
 const CLIENT_ID = '1401637679694614778';
 const CLIENT_SECRET = 'mEpEQDMhEC3xABcpzxhnlwZ8zlY8HZTt';
 const BOT_TOKEN = 'MTQwMTYzNzY3OTY5NDYxNDc3OA.GBuaSq.YWiF9O6t05qKSOjBPvOG3MaTnlj5mpxKsmAsuI';
-const REDIRECT_URI = 'https://08a755ea-29a6-403d-ba0b-906f8780b6a6-00-10z5b6158igf7.sisko.replit.dev/callback'; 
-// تأكد من أن رابط Replit الخاص بك هو الذي يتم وضعه هنا
-// هذا الرابط يجب أن يتطابق مع الرابط في بوابة مطوري Discord
+// تأكد من تحديث هذا الرابط ليطابق رابط مشروعك المستضاف
+const REDIRECT_URI = 'https://[your-hosted-domain]/callback'; 
 
 // إنشاء عميل Discord جديد
 const client = new Client({
@@ -89,7 +88,7 @@ client.on('guildMemberAdd', async member => {
         const oldInvites = invites.get(member.guild.id) || new Map();
 
         for (const [code, newUses] of newInvites) {
-            const oldUses = oldInvites.get(code);
+            const oldUses = oldInvites.get(code) || 0;
             if (oldUses < newUses) {
                 const invite = newInvites.get(code);
                 if (invite && invite.inviter) {
@@ -121,12 +120,12 @@ client.on('guildMemberAdd', async member => {
             const channel = await member.guild.channels.fetch(settings.channelId);
             if (channel && channel.isTextBased()) {
                 // معالجة رسالة الترحيب المخصصة
-                let welcomeMessage = settings.welcomeMessage || `أهلاً بك يا {user} في سيرفر {guildName}! نتمنى لك قضاء وقت ممتع.`;
+                let welcomeMessage = settings.welcomeMessage || `أهلاً بك يا {user} في سيرفر {guildName}! أنت العضو رقم {memberCount} في السيرفر. تمت دعوتك بواسطة {inviter}.`;
                 welcomeMessage = welcomeMessage.replace(/{user}/g, member.toString());
                 welcomeMessage = welcomeMessage.replace(/{guildName}/g, member.guild.name);
                 welcomeMessage = welcomeMessage.replace(/{memberCount}/g, member.guild.memberCount.toString());
                 welcomeMessage = welcomeMessage.replace(/{inviter}/g, inviter);
-
+                
                 channel.send(welcomeMessage);
                 welcomeMessageCount++; // زيادة عدد رسائل الترحيب
             }
