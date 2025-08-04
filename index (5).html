@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إعدادات بوت ديسكورد</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 flex flex-col min-h-screen">
+
+    <!-- Header Section -->
+    <header class="w-full p-4 bg-white dark:bg-gray-800 shadow-lg flex justify-between items-center z-10">
+        <a href="#" class="text-xl font-bold">Bot Control Panel</a>
+        <button id="discord-auth-button" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md transition duration-300 ease-in-out">
+            مصادقة Discord
+        </button>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 p-4 flex items-center justify-center">
+        <!-- Landing Page View -->
+        <div id="landing-page" class="w-full max-w-lg text-center flex flex-col items-center">
+            <img src="https://ik.imagekit.io/bv3ndotua/d4879b2c30a7264b.png?updatedAt=1754319709107" alt="Bot Icon" class="w-40 h-40 mb-8 rounded-full shadow-lg border-4 border-blue-500">
+            <h1 class="text-4xl font-bold mb-4">مرحباً بك في لوحة تحكم البوت</h1>
+            <p class="text-lg text-gray-600 dark:text-gray-400 mb-8">قم بتخصيص بوت ديسكورد الخاص بك بسهولة.</p>
+            <div class="flex space-x-4">
+                <a href="https://discord.gg/8p6gN92d" target="_blank" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-md transition duration-300 ease-in-out">
+                    سيرفر البوت
+                </a>
+                <a href="https://discord.com/oauth2/authorize?client_id=1401637679694614778&permissions=8&integration_type=0&scope=bot" target="_blank" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-md transition duration-300 ease-in-out">
+                    إضافة البوت
+                </a>
+            </div>
+             <!-- Bot Info Section -->
+            <div id="bot-info" class="w-full mt-8 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg">
+                <h2 class="text-2xl font-bold mb-4">إحصائيات البوت</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                    <div>
+                        <p class="text-4xl font-bold text-blue-500 counter" id="server-count">0</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">سيرفر</p>
+                    </div>
+                    <div>
+                        <p class="text-4xl font-bold text-green-500 counter" id="user-count">0</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">مستخدم</p>
+                    </div>
+                    <div>
+                        <p class="text-4xl font-bold text-purple-500 counter" id="online-user-count">0</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">متصل</p>
+                    </div>
+                    <div>
+                        <p class="text-4xl font-bold text-yellow-500 counter" id="welcome-message-count">0</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">رسالة ترحيب</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard View (Hidden by default) -->
+        <div id="dashboard-view" class="hidden w-full h-full flex flex-row p-4 space-x-4">
+            <!-- Sidebar for Guilds -->
+            <div class="w-1/4 bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 overflow-y-auto">
+                <h2 class="text-xl font-bold mb-4">سيرفراتك</h2>
+                <div id="guild-list" class="flex flex-col space-y-2">
+                    <!-- Guilds will be populated here -->
+                </div>
+            </div>
+
+            <!-- Main Content Panel -->
+            <div class="flex-1 bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 flex flex-col">
+                <div id="user-info-panel" class="flex items-center mb-6 border-b pb-4">
+                    <img id="user-avatar" src="https://placehold.co/64x64/E0E0E0/ffffff?text=U" alt="User Avatar" class="w-16 h-16 rounded-full mr-4">
+                    <div class="flex-1">
+                        <h3 id="user-name" class="text-2xl font-bold"></h3>
+                        <p id="user-joined" class="text-sm text-gray-500 dark:text-gray-400"></p>
+                    </div>
+                </div>
+
+                <div id="main-content-panel" class="flex-1 flex flex-col items-center justify-center text-center">
+                    <h2 class="text-2xl font-bold mb-4">اختر سيرفر من القائمة اليسرى</h2>
+                    <p class="text-gray-600 dark:text-gray-400">لعرض الإعدادات الخاصة به.</p>
+                </div>
+
+                <!-- Bot Settings Panel (Hidden by default) -->
+                <div id="settings-panel" class="hidden flex-1 flex flex-col p-4">
+                    <h2 id="settings-guild-name" class="text-2xl font-bold mb-4">إعدادات سيرفر</h2>
+
+                    <div id="bot-status-container" class="mb-4">
+                        <!-- Content depends on whether the bot is in the guild -->
+                        <div id="bot-not-in-guild-message" class="hidden">
+                            <p class="text-red-500 font-bold mb-4">البوت غير موجود في هذا السيرفر.</p>
+                            <a id="add-bot-link" href="#" target="_blank" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-md transition duration-300 ease-in-out">
+                                اضف البوت إلى السيرفر
+                            </a>
+                        </div>
+                    </div>
+
+                    <div id="bot-present-settings" class="hidden">
+                        <button id="show-add-welcome-button" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-md transition duration-300 ease-in-out mb-4">
+                            إضافة رسالة ترحيب
+                        </button>
+    
+                        <!-- Welcome Message Form (Hidden by default) -->
+                        <div id="welcome-message-form" class="hidden bg-gray-100 dark:bg-gray-700 p-4 rounded-lg">
+                            <h3 class="text-lg font-bold mb-2">تخصيص رسالة الترحيب</h3>
+                            
+                            <label for="welcome-message-input" class="block text-sm font-medium mb-2">رسالة الترحيب:</label>
+                            <textarea id="welcome-message-input" class="w-full p-2 border border-gray-300 rounded-md bg-gray-50 dark:bg-gray-600 mb-4" rows="4">أهلاً بك يا {user} في سيرفر {guildName}! أنت العضو رقم {memberCount} في السيرفر. تمت دعوتك بواسطة {inviter}.</textarea>
+                            <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">يمكنك استخدام: {user}, {inviter}, {guildName}, {memberCount}</p>
+                            
+                            <label for="channel-select" class="block text-sm font-medium mb-2">اختر قناة الترحيب:</label>
+                            <select id="channel-select" class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 mb-4">
+                                <option value="">-- اختر قناة --</option>
+                            </select>
+
+                            <label for="role-select" class="block text-sm font-medium mb-2">اختر رتبة العضو الجديد:</label>
+                            <select id="role-select" class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 mb-4">
+                                <option value="">-- لا يوجد رتبة --</option>
+                            </select>
+                            
+                            <div id="action-buttons" class="hidden flex space-x-4">
+                                <button id="save-settings-button" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-md transition duration-300 ease-in-out">
+                                    حفظ الإعدادات
+                                </button>
+                                <button id="cancel-settings-button" class="flex-1 bg-gray-400 hover:bg-gray-500 text-white font-bold py-3 px-4 rounded-md transition duration-300 ease-in-out">
+                                    عدم الحفظ
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="settings-status-message" class="mt-4 text-center text-sm font-medium"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const discordAuthButton = document.getElementById('discord-auth-button');
+        const landingPage = document.getElementById('landing-page');
+        const dashboardView = document.getElementById('dashboard-view');
+        const guildList = document.getElementById('guild-list');
+        const mainContentPanel = document.getElementById('main-content-panel');
+        const settingsPanel = document.getElementById('settings-panel');
+        const userAvatar = document.getElementById('user-avatar');
+        const userName = document.getElementById('user-name');
+        const userJoined = document.getElementById('user-joined');
+        const settingsGuildName = document.getElementById('settings-guild-name');
+        const botStatusContainer = document.getElementById('bot-status-container');
+        const addBotLink = document.getElementById('add-bot-link');
+        const botNotPresentMessage = document.getElementById('bot-not-in-guild-message');
+        const botPresentSettings = document.getElementById('bot-present-settings');
+        const showAddWelcomeButton = document.getElementById('show-add-welcome-button');
+        const welcomeMessageForm = document.getElementById('welcome-message-form');
+        const welcomeMessageInput = document.getElementById('welcome-message-input');
+        const channelSelect = document.getElementById('channel-select');
+        const roleSelect = document.getElementById('role-select');
+        const saveSettingsButton = document.getElementById('save-settings-button');
+        const cancelSettingsButton = document.getElementById('cancel-settings-button');
+        const settingsStatusMessage = document.getElementById('settings-status-message');
+        const serverCountElement = document.getElementById('server-count');
+        const userCountElement = document.getElementById('user-count');
+        const onlineUserCountElement = document.getElementById('online-user-count');
+        const welcomeMessageCountElement = document.getElementById('welcome-message-count');
+
+        let currentGuildId = null;
+        let originalWelcomeMessage = '';
+        let originalChannelId = '';
+        let originalRoleId = '';
+
+        // Animation function for numbers
+        function animateValue(obj, start, end, duration) {
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                obj.textContent = Math.floor(progress * (end - start) + start);
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+
+        // Function to handle the authentication flow
+        discordAuthButton.addEventListener('click', () => {
+            window.location.href = '/login';
+        });
+
+        // Fetch user data and guilds after successful authentication
+        async function fetchDashboardData() {
+            try {
+                const isAuthenticatedResponse = await fetch('/api/is-authenticated');
+                const authStatus = await isAuthenticatedResponse.json();
+
+                // Fetch bot info regardless of user login state
+                await fetchBotInfo();
+                setInterval(fetchBotInfo, 15000); // تحديث الإحصائيات كل 15 ثانية
+
+                if (authStatus.isAuthenticated) {
+                    const [guildsResponse, userResponse] = await Promise.all([
+                        fetch('/api/guilds'),
+                        fetch('/api/user')
+                    ]);
+                    const guilds = await guildsResponse.json();
+                    const user = await userResponse.json();
+                    
+                    landingPage.classList.add('hidden');
+                    dashboardView.classList.remove('hidden');
+                    discordAuthButton.classList.add('hidden'); // إخفاء زر المصادقة عند تسجيل الدخول
+                    updateUserInfo(user);
+                    renderGuildList(guilds);
+                } else {
+                    landingPage.classList.remove('hidden');
+                    dashboardView.classList.add('hidden');
+                    discordAuthButton.classList.remove('hidden'); // إظهار زر المصادقة إذا لم يكن مسجلاً
+                }
+            } catch (error) {
+                console.error('Error fetching dashboard data:', error);
+                landingPage.classList.remove('hidden');
+                dashboardView.classList.add('hidden');
+            }
+        }
+
+        async function fetchBotInfo() {
+            try {
+                const response = await fetch('/api/bot-info');
+                const info = await response.json();
+                
+                // Animated updates
+                animateValue(serverCountElement, parseInt(serverCountElement.textContent), info.serverCount, 500);
+                animateValue(userCountElement, parseInt(userCountElement.textContent), info.userCount, 500);
+                animateValue(onlineUserCountElement, parseInt(onlineUserCountElement.textContent), info.onlineUserCount, 500);
+                animateValue(welcomeMessageCountElement, parseInt(welcomeMessageCountElement.textContent), info.welcomeMessageCount, 500);
+            } catch (error) {
+                console.error('Error fetching bot info:', error);
+            }
+        }
+
+        function updateUserInfo(user) {
+            userName.textContent = user.global_name ? `${user.global_name} (${user.username})` : user.username;
+            userAvatar.src = user.avatar ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=128` : `https://placehold.co/64x64/E0E0E0/ffffff?text=${user.username.charAt(0)}`;
+            
+            // Fix for invalid date
+            try {
+                const joinedDate = new Date(user.id / 4194304 + 1420070400000);
+                userJoined.textContent = `انضم إلى Discord في: ${joinedDate.toLocaleDateString('ar-EG')}`;
+            } catch (e) {
+                userJoined.textContent = `انضم إلى Discord في: غير معروف`;
+            }
+        }
+
+        function renderGuildList(guilds) {
+            guildList.innerHTML = '';
+            guilds.forEach(guild => {
+                const guildElement = document.createElement('div');
+                guildElement.className = 'p-3 bg-gray-100 dark:bg-gray-700 rounded-lg cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600 transition duration-150 ease-in-out';
+                guildElement.textContent = guild.name;
+                guildElement.addEventListener('click', () => {
+                    checkBotStatus(guild);
+                });
+                guildList.appendChild(guildElement);
+            });
+        }
+
+        async function checkBotStatus(guild) {
+            currentGuildId = guild.id;
+            mainContentPanel.classList.add('hidden');
+            settingsPanel.classList.remove('hidden');
+            settingsGuildName.textContent = `إعدادات سيرفر: ${guild.name}`;
+            settingsStatusMessage.textContent = 'جارٍ التحقق من حالة البوت...';
+            
+            try {
+                const response = await fetch(`/api/guilds/${guild.id}/bot-status`);
+                const result = await response.json();
+                
+                if (result.is_bot_present) {
+                    botNotPresentMessage.classList.add('hidden');
+                    botPresentSettings.classList.remove('hidden');
+                    settingsStatusMessage.textContent = 'تم العثور على البوت في السيرفر.';
+                    
+                    fetchChannelsAndSettings(guild.id);
+                } else {
+                    botNotPresentMessage.classList.remove('hidden');
+                    botPresentSettings.classList.add('hidden');
+                    addBotLink.href = `https://discord.com/api/oauth2/authorize?client_id=${result.client_id}&permissions=8&integration_type=0&scope=bot&guild_id=${guild.id}`;
+                    settingsStatusMessage.textContent = 'البوت غير موجود في السيرفر. قم بإضافته.';
+                }
+            } catch (error) {
+                console.error('Error checking bot status:', error);
+                settingsStatusMessage.textContent = 'حدث خطأ أثناء التحقق من حالة البوت.';
+            }
+        }
+        
+        async function fetchChannelsAndSettings(guildId) {
+            try {
+                const [channelsResponse, settingsResponse, rolesResponse] = await Promise.all([
+                    fetch(`/api/guilds/${guildId}/channels`),
+                    fetch(`/api/guilds/${guildId}/settings`),
+                    fetch(`/api/guilds/${guildId}/roles`)
+                ]);
+                const channels = await channelsResponse.json();
+                const settings = await settingsResponse.json();
+                const roles = await rolesResponse.json();
+        
+                channelSelect.innerHTML = '<option value="">-- اختر قناة --</option>';
+                channels.forEach(channel => {
+                    const option = document.createElement('option');
+                    option.value = channel.id;
+                    option.textContent = channel.name;
+                    channelSelect.appendChild(option);
+                });
+
+                roleSelect.innerHTML = '<option value="">-- لا يوجد رتبة --</option>';
+                roles.forEach(role => {
+                    const option = document.createElement('option');
+                    option.value = role.id;
+                    option.textContent = role.name;
+                    roleSelect.appendChild(option);
+                });
+        
+                if (settings && settings.channelId) {
+                    welcomeMessageInput.value = settings.welcomeMessage || '';
+                    channelSelect.value = settings.channelId;
+                    roleSelect.value = settings.roleId || '';
+                } else {
+                    welcomeMessageInput.value = 'أهلاً بك يا {user} في سيرفر {guildName}! أنت العضو رقم {memberCount} في السيرفر. تمت دعوتك بواسطة {inviter}.';
+                    channelSelect.value = '';
+                    roleSelect.value = '';
+                }
+        
+                originalWelcomeMessage = welcomeMessageInput.value;
+                originalChannelId = channelSelect.value;
+                originalRoleId = roleSelect.value;
+        
+                welcomeMessageForm.classList.remove('hidden');
+                showAddWelcomeButton.classList.add('hidden');
+                updateActionButtonsVisibility();
+            } catch (error) {
+                console.error('Error fetching channels, roles or settings:', error);
+                settingsStatusMessage.textContent = 'حدث خطأ أثناء جلب القنوات أو الرتب أو الإعدادات.';
+            }
+        }
+
+        // Add event listeners for changes in the form
+        welcomeMessageInput.addEventListener('input', updateActionButtonsVisibility);
+        channelSelect.addEventListener('change', updateActionButtonsVisibility);
+        roleSelect.addEventListener('change', updateActionButtonsVisibility);
+
+        function updateActionButtonsVisibility() {
+            const isChanged = welcomeMessageInput.value !== originalWelcomeMessage || channelSelect.value !== originalChannelId || roleSelect.value !== originalRoleId;
+            const actionButtons = document.getElementById('action-buttons');
+            if (isChanged) {
+                actionButtons.classList.remove('hidden');
+            } else {
+                actionButtons.classList.add('hidden');
+            }
+        }
+        
+        showAddWelcomeButton.addEventListener('click', () => {
+            welcomeMessageForm.classList.remove('hidden');
+            showAddWelcomeButton.classList.add('hidden');
+            updateActionButtonsVisibility();
+        });
+
+        cancelSettingsButton.addEventListener('click', () => {
+            welcomeMessageForm.classList.add('hidden');
+            showAddWelcomeButton.classList.remove('hidden');
+            // Reset values to original
+            welcomeMessageInput.value = originalWelcomeMessage;
+            channelSelect.value = originalChannelId;
+            roleSelect.value = originalRoleId;
+            updateActionButtonsVisibility();
+        });
+
+        saveSettingsButton.addEventListener('click', async () => {
+            const guildId = currentGuildId;
+            const channelId = channelSelect.value;
+            const welcomeMessage = welcomeMessageInput.value;
+            const roleId = roleSelect.value;
+
+            if (guildId && channelId && welcomeMessage) {
+                settingsStatusMessage.textContent = 'جاري حفظ الإعدادات...';
+                saveSettingsButton.disabled = true;
+                cancelSettingsButton.disabled = true;
+
+                try {
+                    const response = await fetch('/api/save-welcome-channel', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ guildId, channelId, welcomeMessage, roleId })
+                    });
+                    const result = await response.json();
+                    if (result.success) {
+                        settingsStatusMessage.textContent = 'تم حفظ الإعدادات بنجاح!';
+                        originalWelcomeMessage = welcomeMessage;
+                        originalChannelId = channelId;
+                        originalRoleId = roleId;
+                        welcomeMessageForm.classList.add('hidden');
+                        showAddWelcomeButton.classList.remove('hidden');
+                    } else {
+                        settingsStatusMessage.textContent = 'فشل الحفظ: ' + result.message;
+                    }
+                } catch (error) {
+                    settingsStatusMessage.textContent = 'حدث خطأ: ' + error.message;
+                } finally {
+                    saveSettingsButton.disabled = false;
+                    cancelSettingsButton.disabled = false;
+                    updateActionButtonsVisibility();
+                }
+            } else {
+                settingsStatusMessage.textContent = 'يرجى إكمال جميع الحقول.';
+            }
+        });
+
+        // Initial fetch when the page loads
+        document.addEventListener('DOMContentLoaded', fetchDashboardData);
+    </script>
+</body>
+</html>
