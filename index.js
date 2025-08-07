@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 // استيراد المكتبات الضرورية
 const express = require('express');
 const { Client, GatewayIntentBits, PermissionsBitField } = require('discord.js');
@@ -12,7 +14,7 @@ app.use(express.json());
 
 // إعداد middleware للجلسات
 app.use(session({
-    secret: 'هذا_سر_سري_يجب_تغييره_بشكل_دوري_وعشوائي', // قم بتغيير هذا إلى قيمة عشوائية خاصة بك
+    secret: process.env.SESSION_SECRET || 'fallback_secret_change_in_production', // قم بتغيير هذا إلى قيمة عشوائية خاصة بك
     resave: false,
     saveUninitialized: false,
     cookie: {
@@ -25,11 +27,21 @@ app.use(session({
 //                إعدادات البوت
 // ---------------------------------------------
 
-const CLIENT_ID = '1401637679694614778';
-const CLIENT_SECRET = 'mEpEQDMhEC3xABcpzxhnlwZ8zlY8HZTt';
-const BOT_TOKEN = 'MTQwMTYzNzY3OTY5NDYxNDc3OA.GBuaSq.YWiF9O6t05qKSOjBPvOG3MaTnlj5mpxKsmAsuI';
+const CLIENT_ID = process.env.CLIENT_ID || '1401637679694614778';
+const CLIENT_SECRET = process.env.CLIENT_SECRET;
+const BOT_TOKEN = process.env.BOT_TOKEN;
 // تأكد من تحديث هذا الرابط ليطابق رابط مشروعك المستضاف
-const REDIRECT_URI = 'https://welcomebotdis.vercel.app/callback'; 
+const REDIRECT_URI = process.env.REDIRECT_URI || 'https://welcomebotdis.vercel.app/callback';
+
+if (!BOT_TOKEN) {
+    console.error('خطأ: BOT_TOKEN غير موجود في متغيرات البيئة');
+    process.exit(1);
+}
+
+if (!CLIENT_SECRET) {
+    console.error('خطأ: CLIENT_SECRET غير موجود في متغيرات البيئة');
+    process.exit(1);
+}
 
 // إنشاء عميل Discord جديد
 const client = new Client({
