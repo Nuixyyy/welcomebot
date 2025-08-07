@@ -81,6 +81,10 @@ client.on('guildMemberAdd', async member => {
     const guildId = member.guild.id;
     const settings = serverSettings.get(guildId);
 
+    if (!settings || settings.botEnabled === false) {
+        return;
+    }
+
     // Get inviter and process message placeholders
     let inviter = 'غير معروف';
     try {
@@ -102,50 +106,77 @@ client.on('guildMemberAdd', async member => {
         console.error('Failed to fetch invites:', error);
     }
 
-    if (settings) {
-        // Assign role if specified
-        if (settings.roleId) {
-            try {
-                const role = member.guild.roles.cache.get(settings.roleId);
-                if (role) {
-                    await member.roles.add(role);
-                    console.log(`تم إعطاء الرتبة ${role.name} للعضو ${member.user.tag}`);
-                }
-            } catch (error) {
-                console.error(`فشل إعطاء الرتبة للعضو ${member.user.tag}:`, error);
-            }
-        }
-
+    // Assign role if specified
+    if (settings.roleId) {
         try {
-            const channel = await member.guild.channels.fetch(settings.channelId);
-            if (channel && channel.isTextBased()) {
-                // معالجة رسالة الترحيب المخصصة
-                let welcomeMessage = settings.welcomeMessage || `أهلاً بك يا {user} في سيرفر {guildName}! أنت العضو رقم {memberCount} في السيرفر. تمت دعوتك بواسطة {inviter}.`;
-                welcomeMessage = welcomeMessage.replace(/{user}/g, member.toString());
-                welcomeMessage = welcomeMessage.replace(/{guildName}/g, member.guild.name);
-                welcomeMessage = welcomeMessage.replace(/{memberCount}/g, member.guild.memberCount.toString());
-                welcomeMessage = welcomeMessage.replace(/{inviter}/g, inviter);
-                
-                channel.send(welcomeMessage);
-                welcomeMessageCount++; // زيادة عدد رسائل الترحيب
+            const role = member.guild.roles.cache.get(settings.roleId);
+            if (role) {
+                await member.roles.add(role);
+                console.log(`تم إعطاء الرتبة ${role.name} للعضو ${member.user.tag}`);
             }
         } catch (error) {
-            console.error(`حدث خطأ أثناء إرسال رسالة الترحيب في السيرفر ${guildId}:`, error);
+            console.error(`فشل إعطاء الرتبة للعضو ${member.user.tag}:`, error);
         }
+    }
+
+    try {
+        const channel = await member.guild.channels.fetch(settings.channelId);
+        if (channel && channel.isTextBased()) {
+            // معالجة رسالة الترحيب المخصصة
+            let welcomeMessage = settings.welcomeMessage || `أهلاً بك يا {user} في سيرفر {guildName}! أنت العضو رقم {memberCount} في السيرفر. تمت دعوتك بواسطة {inviter}.`;
+            welcomeMessage = welcomeMessage.replace(/{user}/g, member.toString());
+            welcomeMessage = welcomeMessage.replace(/{guildName}/g, member.guild.name);
+            welcomeMessage = welcomeMessage.replace(/{memberCount}/g, member.guild.memberCount.toString());
+            welcomeMessage = welcomeMessage.replace(/{inviter}/g, inviter);
+            
+            if (settings.imageData && settings.contentOrder === 'image-first') {
+                await sendWelcomeWithImage(channel, member, settings, welcomeMessage);
+            } else if (settings.imageData && settings.contentOrder === 'message-first') {
+                await channel.send(welcomeMessage);
+                await sendWelcomeWithImage(channel, member, settings, '');
+            } else {
+                await channel.send(welcomeMessage);
+            }
+            
+            welcomeMessageCount++; // زيادة عدد رسائل الترحيب
+        }
+    } catch (error) {
+        console.error(`حدث خطأ أثناء إرسال رسالة الترحيب في السيرفر ${guildId}:`, error);
     }
 });
 
-// تسجيل دخول البوت
-client.login(BOT_TOKEN);
+async function sendWelcomeWithImage(channel, member, settings, message) {
+    try {
+        
+        if (message) {
+            await channel.send(message);
+        }
+        
+        await channel.send('🖼️ صورة ترحيب مخصصة (سيتم تنفيذها لاحقاً)');
+    } catch (error) {
+        console.error('Error sending welcome image:', error);
+    }
+}
+
+// تسجيل دخول البوت (معطل للاختبار المحلي)
+// client.login(BOT_TOKEN);
 
 // ---------------------------------------------
 //             وظائف مساعدة للويب
 // ---------------------------------------------
 
 // وظيفة لحفظ إعدادات قناة الترحيب
-async function saveWelcomeChannel(guildId, channelId, welcomeMessage, roleId) {
-    serverSettings.set(guildId, { channelId, welcomeMessage, roleId });
-    console.log(`تم حفظ إعدادات السيرفر ${guildId}: قناة الترحيب: ${channelId}, رسالة: ${welcomeMessage}, رتبة: ${roleId}`);
+async function saveWelcomeChannel(guildId, channelId, welcomeMessage, roleId, botEnabled = true, contentOrder = 'message-first', imageData = null, avatarPosition = { x: 20, y: 20 }) {
+    serverSettings.set(guildId, { 
+        channelId, 
+        welcomeMessage, 
+        roleId, 
+        botEnabled,
+        contentOrder,
+        imageData,
+        avatarPosition
+    });
+    console.log(`تم حفظ إعدادات السيرفر ${guildId}: قناة الترحيب: ${channelId}, رسالة: ${welcomeMessage}, رتبة: ${roleId}, البوت مفعل: ${botEnabled}`);
     return { success: true, message: "تم حفظ الإعدادات بنجاح." };
 }
 
@@ -264,7 +295,15 @@ app.get('/api/guilds/:guildId/bot-status', async (req, res) => {
 app.get('/api/guilds/:guildId/settings', (req, res) => {
     const { guildId } = req.params;
     const settings = serverSettings.get(guildId);
-    res.json(settings || { channelId: null, welcomeMessage: '', roleId: null });
+    res.json(settings || { 
+        channelId: null, 
+        welcomeMessage: '', 
+        roleId: null, 
+        botEnabled: true,
+        contentOrder: 'message-first',
+        imageData: null,
+        avatarPosition: { x: 20, y: 20 }
+    });
 });
 
 // نقطة نهاية لجلب قنوات السيرفر
@@ -296,14 +335,55 @@ app.get('/api/guilds/:guildId/roles', async (req, res) => {
 
 // نقطة نهاية لحفظ إعدادات البوت
 app.post('/api/save-welcome-channel', async (req, res) => {
-    const { guildId, channelId, welcomeMessage, roleId } = req.body;
+    const { guildId, channelId, welcomeMessage, roleId, botEnabled, contentOrder, imageData, avatarPosition } = req.body;
 
     if (!guildId || !channelId || !welcomeMessage) {
         return res.status(400).json({ success: false, message: 'معرف السيرفر والقناة ورسالة الترحيب مطلوبة.' });
     }
 
-    const result = await saveWelcomeChannel(guildId, channelId, welcomeMessage, roleId);
+    const result = await saveWelcomeChannel(guildId, channelId, welcomeMessage, roleId, botEnabled, contentOrder, imageData, avatarPosition);
     res.json(result);
+});
+
+// نقطة نهاية لتجربة رسالة الترحيب
+app.post('/api/test-welcome', async (req, res) => {
+    const { guildId, channelId, welcomeMessage } = req.body;
+    const access_token = req.session.discordAccessToken;
+    
+    if (!access_token) {
+        return res.status(401).json({ success: false, message: 'غير مصرح به' });
+    }
+
+    if (!guildId || !channelId || !welcomeMessage) {
+        return res.status(400).json({ success: false, message: 'معرف السيرفر والقناة ورسالة الترحيب مطلوبة.' });
+    }
+
+    try {
+        const { data: user } = await axios.get('https://discord.com/api/users/@me', {
+            headers: { Authorization: `Bearer ${access_token}` }
+        });
+
+        const guild = await client.guilds.fetch(guildId);
+        const channel = await guild.channels.fetch(channelId);
+        
+        if (channel && channel.isTextBased()) {
+            let testMessage = welcomeMessage;
+            testMessage = testMessage.replace(/{user}/g, `<@${user.id}>`);
+            testMessage = testMessage.replace(/{guildName}/g, guild.name);
+            testMessage = testMessage.replace(/{memberCount}/g, guild.memberCount.toString());
+            testMessage = testMessage.replace(/{inviter}/g, user.username);
+            
+            testMessage = '🧪 **رسالة تجريبية** 🧪\n' + testMessage;
+            
+            await channel.send(testMessage);
+            res.json({ success: true, message: 'تم إرسال رسالة الترحيب التجريبية بنجاح.' });
+        } else {
+            res.status(400).json({ success: false, message: 'القناة المحددة غير صالحة.' });
+        }
+    } catch (error) {
+        console.error('Error sending test welcome message:', error);
+        res.status(500).json({ success: false, message: 'فشل إرسال رسالة الترحيب التجريبية.' });
+    }
 });
 
 

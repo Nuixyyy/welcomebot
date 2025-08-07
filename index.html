@@ -102,18 +102,39 @@
                     </div>
 
                     <div id="bot-present-settings" class="hidden">
+                        <!-- Bot Toggle Switch -->
+                        <div class="mb-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h3 class="text-lg font-bold">حالة البوت</h3>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">تشغيل أو إيقاف البوت في هذا السيرفر</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="bot-enabled-toggle" class="sr-only peer">
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                                </label>
+                            </div>
+                        </div>
+
                         <button id="show-add-welcome-button" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-md transition duration-300 ease-in-out mb-4">
-                            إضافة رسالة ترحيب
+                            تخصيص الترحيب
                         </button>
     
                         <!-- Welcome Message Form (Hidden by default) -->
                         <div id="welcome-message-form" class="hidden bg-gray-100 dark:bg-gray-700 p-4 rounded-lg">
-                            <h3 class="text-lg font-bold mb-2">تخصيص رسالة الترحيب</h3>
+                            <h3 class="text-lg font-bold mb-4">تخصيص رسالة الترحيب</h3>
                             
-                            <label for="welcome-message-input" class="block text-sm font-medium mb-2">رسالة الترحيب:</label>
-                            <textarea id="welcome-message-input" class="w-full p-2 border border-gray-300 rounded-md bg-gray-50 dark:bg-gray-600 mb-4" rows="4">أهلاً بك يا {user} في سيرفر {guildName}! أنت العضو رقم {memberCount} في السيرفر. تمت دعوتك بواسطة {inviter}.</textarea>
-                            <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">يمكنك استخدام: {user}, {inviter}, {guildName}, {memberCount}</p>
-                            
+                            <!-- Bot Enable/Disable Toggle -->
+                            <div class="mb-4 p-3 bg-white dark:bg-gray-600 rounded-lg">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm font-medium">تشغيل البوت</span>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" id="bot-toggle" class="sr-only peer" checked>
+                                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                                    </label>
+                                </div>
+                            </div>
+
                             <label for="channel-select" class="block text-sm font-medium mb-2">اختر قناة الترحيب:</label>
                             <select id="channel-select" class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 mb-4">
                                 <option value="">-- اختر قناة --</option>
@@ -123,13 +144,46 @@
                             <select id="role-select" class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 mb-4">
                                 <option value="">-- لا يوجد رتبة --</option>
                             </select>
+
+                            <!-- Message/Image Order Selection -->
+                            <label for="content-order" class="block text-sm font-medium mb-2">ترتيب المحتوى:</label>
+                            <select id="content-order" class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 mb-4">
+                                <option value="message-first">الرسالة أولاً ثم الصورة</option>
+                                <option value="image-first">الصورة أولاً ثم الرسالة</option>
+                            </select>
                             
-                            <div id="action-buttons" class="hidden flex space-x-4">
+                            <label for="welcome-message-input" class="block text-sm font-medium mb-2">رسالة الترحيب:</label>
+                            <textarea id="welcome-message-input" class="w-full p-2 border border-gray-300 rounded-md bg-gray-50 dark:bg-gray-600 mb-4" rows="4">أهلاً بك يا {user} في سيرفر {guildName}! أنت العضو رقم {memberCount} في السيرفر. تمت دعوتك بواسطة {inviter}.</textarea>
+                            <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">يمكنك استخدام: {user}, {inviter}, {guildName}, {memberCount}</p>
+
+                            <!-- Image Upload Section -->
+                            <div class="mb-4">
+                                <label for="welcome-image" class="block text-sm font-medium mb-2">صورة الترحيب (اختيارية):</label>
+                                <input type="file" id="welcome-image" accept="image/*" class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 mb-2">
+                                
+                                <!-- Image Preview and Position Controls -->
+                                <div id="image-preview-container" class="hidden mt-4 p-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg">
+                                    <div class="relative">
+                                        <canvas id="image-canvas" class="max-w-full h-auto border rounded"></canvas>
+                                        <div id="user-avatar-overlay" class="absolute w-16 h-16 border-4 border-white rounded-full bg-blue-500 cursor-move" style="top: 20px; left: 20px;">
+                                            <div class="w-full h-full rounded-full bg-gray-300 flex items-center justify-center text-xs">صورة المستخدم</div>
+                                        </div>
+                                    </div>
+                                    <div class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                                        اسحب صورة المستخدم لتغيير موضعها على الصورة
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div id="action-buttons" class="hidden flex space-x-2">
                                 <button id="save-settings-button" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-md transition duration-300 ease-in-out">
-                                    حفظ الإعدادات
+                                    حفظ التغيرات
                                 </button>
                                 <button id="cancel-settings-button" class="flex-1 bg-gray-400 hover:bg-gray-500 text-white font-bold py-3 px-4 rounded-md transition duration-300 ease-in-out">
                                     عدم الحفظ
+                                </button>
+                                <button id="test-welcome-button" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-md transition duration-300 ease-in-out">
+                                    تجربة الترحيب
                                 </button>
                             </div>
                         </div>
@@ -163,16 +217,30 @@
         const roleSelect = document.getElementById('role-select');
         const saveSettingsButton = document.getElementById('save-settings-button');
         const cancelSettingsButton = document.getElementById('cancel-settings-button');
+        const testWelcomeButton = document.getElementById('test-welcome-button');
         const settingsStatusMessage = document.getElementById('settings-status-message');
         const serverCountElement = document.getElementById('server-count');
         const userCountElement = document.getElementById('user-count');
         const onlineUserCountElement = document.getElementById('online-user-count');
         const welcomeMessageCountElement = document.getElementById('welcome-message-count');
+        const botToggle = document.getElementById('bot-toggle');
+        const botEnabledToggle = document.getElementById('bot-enabled-toggle');
+        const contentOrder = document.getElementById('content-order');
+        const welcomeImage = document.getElementById('welcome-image');
+        const imagePreviewContainer = document.getElementById('image-preview-container');
+        const imageCanvas = document.getElementById('image-canvas');
+        const userAvatarOverlay = document.getElementById('user-avatar-overlay');
 
         let currentGuildId = null;
         let originalWelcomeMessage = '';
         let originalChannelId = '';
         let originalRoleId = '';
+        let originalBotEnabled = true;
+        let originalContentOrder = 'message-first';
+        let originalImageData = null;
+        let originalAvatarPosition = { x: 20, y: 20 };
+        let isDragging = false;
+        let dragOffset = { x: 0, y: 0 };
 
         // Function to handle the authentication flow
         discordAuthButton.addEventListener('click', () => {
@@ -332,15 +400,23 @@
                     welcomeMessageInput.value = settings.welcomeMessage || '';
                     channelSelect.value = settings.channelId;
                     roleSelect.value = settings.roleId || '';
+                    botToggle.checked = settings.botEnabled !== false;
+                    botEnabledToggle.checked = settings.botEnabled !== false;
+                    contentOrder.value = settings.contentOrder || 'message-first';
                 } else {
                     welcomeMessageInput.value = 'أهلاً بك يا {user} في سيرفر {guildName}! أنت العضو رقم {memberCount} في السيرفر. تمت دعوتك بواسطة {inviter}.';
                     channelSelect.value = '';
                     roleSelect.value = '';
+                    botToggle.checked = true;
+                    botEnabledToggle.checked = true;
+                    contentOrder.value = 'message-first';
                 }
         
                 originalWelcomeMessage = welcomeMessageInput.value;
                 originalChannelId = channelSelect.value;
                 originalRoleId = roleSelect.value;
+                originalBotEnabled = botToggle.checked;
+                originalContentOrder = contentOrder.value;
         
                 welcomeMessageForm.classList.remove('hidden');
                 showAddWelcomeButton.classList.add('hidden');
@@ -355,15 +431,106 @@
         welcomeMessageInput.addEventListener('input', updateActionButtonsVisibility);
         channelSelect.addEventListener('change', updateActionButtonsVisibility);
         roleSelect.addEventListener('change', updateActionButtonsVisibility);
+        botToggle.addEventListener('change', updateActionButtonsVisibility);
+        contentOrder.addEventListener('change', updateActionButtonsVisibility);
+        welcomeImage.addEventListener('change', handleImageUpload);
 
         function updateActionButtonsVisibility() {
-            const isChanged = welcomeMessageInput.value !== originalWelcomeMessage || channelSelect.value !== originalChannelId || roleSelect.value !== originalRoleId;
+            const isChanged = welcomeMessageInput.value !== originalWelcomeMessage || 
+                            channelSelect.value !== originalChannelId || 
+                            roleSelect.value !== originalRoleId ||
+                            botToggle.checked !== originalBotEnabled ||
+                            contentOrder.value !== originalContentOrder;
             const actionButtons = document.getElementById('action-buttons');
             if (isChanged) {
                 actionButtons.classList.remove('hidden');
             } else {
                 actionButtons.classList.add('hidden');
             }
+        }
+
+        // Image upload and preview functionality
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.onload = function() {
+                        setupImageCanvas(img);
+                        imagePreviewContainer.classList.remove('hidden');
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            } else {
+                imagePreviewContainer.classList.add('hidden');
+            }
+        }
+
+        function setupImageCanvas(img) {
+            const canvas = imageCanvas;
+            const ctx = canvas.getContext('2d');
+            
+            // Set canvas size to fit the image while maintaining aspect ratio
+            const maxWidth = 400;
+            const maxHeight = 300;
+            let { width, height } = img;
+            
+            if (width > maxWidth) {
+                height = (height * maxWidth) / width;
+                width = maxWidth;
+            }
+            if (height > maxHeight) {
+                width = (width * maxHeight) / height;
+                height = maxHeight;
+            }
+            
+            canvas.width = width;
+            canvas.height = height;
+            ctx.drawImage(img, 0, 0, width, height);
+            
+            // Position the user avatar overlay
+            userAvatarOverlay.style.left = originalAvatarPosition.x + 'px';
+            userAvatarOverlay.style.top = originalAvatarPosition.y + 'px';
+        }
+
+        // Drag functionality for user avatar positioning
+        userAvatarOverlay.addEventListener('mousedown', startDrag);
+        document.addEventListener('mousemove', drag);
+        document.addEventListener('mouseup', stopDrag);
+
+        function startDrag(e) {
+            isDragging = true;
+            const rect = userAvatarOverlay.getBoundingClientRect();
+            const containerRect = imagePreviewContainer.getBoundingClientRect();
+            dragOffset.x = e.clientX - rect.left;
+            dragOffset.y = e.clientY - rect.top;
+            e.preventDefault();
+        }
+
+        function drag(e) {
+            if (!isDragging) return;
+            
+            const containerRect = imagePreviewContainer.getBoundingClientRect();
+            const canvasRect = imageCanvas.getBoundingClientRect();
+            
+            let newX = e.clientX - containerRect.left - dragOffset.x;
+            let newY = e.clientY - containerRect.top - dragOffset.y;
+            
+            // Keep within canvas bounds
+            const avatarSize = 64; // 16 * 4 (w-16 h-16)
+            newX = Math.max(0, Math.min(newX, canvasRect.width - avatarSize));
+            newY = Math.max(0, Math.min(newY, canvasRect.height - avatarSize));
+            
+            userAvatarOverlay.style.left = newX + 'px';
+            userAvatarOverlay.style.top = newY + 'px';
+            
+            updateActionButtonsVisibility();
+        }
+
+        function stopDrag() {
+            isDragging = false;
         }
         
         showAddWelcomeButton.addEventListener('click', () => {
@@ -379,7 +546,43 @@
             welcomeMessageInput.value = originalWelcomeMessage;
             channelSelect.value = originalChannelId;
             roleSelect.value = originalRoleId;
+            botToggle.checked = originalBotEnabled;
+            contentOrder.value = originalContentOrder;
+            imagePreviewContainer.classList.add('hidden');
+            welcomeImage.value = '';
             updateActionButtonsVisibility();
+        });
+
+        // Test welcome message functionality
+        testWelcomeButton.addEventListener('click', async () => {
+            const guildId = currentGuildId;
+            const channelId = channelSelect.value;
+            const welcomeMessage = welcomeMessageInput.value;
+            
+            if (guildId && channelId && welcomeMessage) {
+                settingsStatusMessage.textContent = 'جاري إرسال رسالة تجريبية...';
+                testWelcomeButton.disabled = true;
+                
+                try {
+                    const response = await fetch(`${API_BASE_URL}/api/test-welcome`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ guildId, channelId, welcomeMessage })
+                    });
+                    const result = await response.json();
+                    if (result.success) {
+                        settingsStatusMessage.textContent = 'تم إرسال رسالة الترحيب التجريبية بنجاح!';
+                    } else {
+                        settingsStatusMessage.textContent = 'فشل إرسال الرسالة التجريبية: ' + result.message;
+                    }
+                } catch (error) {
+                    settingsStatusMessage.textContent = 'حدث خطأ: ' + error.message;
+                } finally {
+                    testWelcomeButton.disabled = false;
+                }
+            } else {
+                settingsStatusMessage.textContent = 'يرجى إكمال جميع الحقول المطلوبة.';
+            }
         });
 
         saveSettingsButton.addEventListener('click', async () => {
@@ -387,17 +590,42 @@
             const channelId = channelSelect.value;
             const welcomeMessage = welcomeMessageInput.value;
             const roleId = roleSelect.value;
+            const botEnabled = botToggle.checked;
+            const contentOrderValue = contentOrder.value;
+            
+            // Get image data if uploaded
+            let imageData = null;
+            let avatarPosition = { x: 20, y: 20 };
+            if (welcomeImage.files[0]) {
+                const canvas = imageCanvas;
+                imageData = canvas.toDataURL();
+                const overlayStyle = userAvatarOverlay.style;
+                avatarPosition = {
+                    x: parseInt(overlayStyle.left) || 20,
+                    y: parseInt(overlayStyle.top) || 20
+                };
+            }
 
             if (guildId && channelId && welcomeMessage) {
                 settingsStatusMessage.textContent = 'جاري حفظ الإعدادات...';
                 saveSettingsButton.disabled = true;
                 cancelSettingsButton.disabled = true;
+                testWelcomeButton.disabled = true;
 
                 try {
                     const response = await fetch(`${API_BASE_URL}/api/save-welcome-channel`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ guildId, channelId, welcomeMessage, roleId })
+                        body: JSON.stringify({ 
+                            guildId, 
+                            channelId, 
+                            welcomeMessage, 
+                            roleId, 
+                            botEnabled,
+                            contentOrder: contentOrderValue,
+                            imageData,
+                            avatarPosition
+                        })
                     });
                     const result = await response.json();
                     if (result.success) {
@@ -405,6 +633,9 @@
                         originalWelcomeMessage = welcomeMessage;
                         originalChannelId = channelId;
                         originalRoleId = roleId;
+                        originalBotEnabled = botEnabled;
+                        originalContentOrder = contentOrderValue;
+                        botEnabledToggle.checked = botEnabled;
                         welcomeMessageForm.classList.add('hidden');
                         showAddWelcomeButton.classList.remove('hidden');
                     } else {
@@ -415,6 +646,7 @@
                 } finally {
                     saveSettingsButton.disabled = false;
                     cancelSettingsButton.disabled = false;
+                    testWelcomeButton.disabled = false;
                     updateActionButtonsVisibility();
                 }
             } else {
